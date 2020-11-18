@@ -9,7 +9,7 @@ known_dir = "C:/Users/Goku/Documents/jupyter_data/known_image"
 #load face data from pickle
 
 with open(os.path.join( known_dir, "faceData.pickle"), 'rb') as file:
-    names, faces = pickle.load(file)
+    ids, names, faces, times = pickle.load(file)
 
 face_locations = []
 face_encodings = []
@@ -38,7 +38,7 @@ while 1:
         best_match_index = np.argmin(face_distances)
 
         if matches[best_match_index]:
-            name = "Hi " + names[best_match_index]
+            name = "ID: " + ids[best_match_index]
 
         face_names.append(name)
     i = 0   
