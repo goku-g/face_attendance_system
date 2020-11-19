@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 known_dir = "C:/Users/Goku/Documents/jupyter_data/known_image"
 
 
-class MainWindow():
+class EntryWindow():
     
     def __init__(self, root, cap):
         self.root = root
@@ -62,6 +62,7 @@ class MainWindow():
 
         #END Entry section
         
+        # INFO section
         self.info_frame = Canvas(self.root, width=total_width-image_width, height=int(image_height/2), relief=FLAT)
         self.info_frame.pack()
         
@@ -74,8 +75,11 @@ class MainWindow():
         cv2.destroyAllWindows()
         self.img2save = self.return_current_img()
         #plt.imshow(self.img2save)
-        #image_data.remove()
-        image_data.append(self.img2save)
+        if not image_data:
+            image_data.append(self.img2save)
+        else:
+            image_data.remove(image_data[0])
+            image_data.append(self.img2save)
         
         
     def submit_details(self):
@@ -102,17 +106,25 @@ class MainWindow():
             #print(f"Date : {entry_date}")
             #plt.imshow(image_data[0])
             
-            self.save_data(ID, Fname, Mname, Lname, entry_date)
+            
+            if len(image_data) > 0:
+                self.save_data(ID, Fname, Mname, Lname, entry_date)
+                
+            else:
+                self.message = Label(self.info_frame ,text = "Image is not Captured yet.", fg="red", font=("Helvetica", 12))
+                self.message.pack()
+                
             
 
         else:
             self.message = Label(self.info_frame ,text = "Enter The Required Field [ ID, first name, last name ]", fg="red", font=("Helvetica", 12))
             self.message.pack()
+        
             
         
     def quit_all(self):
         #print("quit")
-        cv2.destroyAllWindows()
+        #cv2.destroyAllWindows()
         self.root.destroy()
         
     def update_image(self):
@@ -145,12 +157,6 @@ class MainWindow():
         #         self.image = cv2.rectangle(self.image, (3,3), (image_width-2,image_height-6), (255, 0, 0), 2)
         self.image1 = self.image[ 3:image_height-6, 3:image_width-2]
         
-        self.image = Image.fromarray(self.image1) # to PIL format
-        self.image = ImageTk.PhotoImage(self.image) # to ImageTk format
-        # Update image
-        
-        self.image_frame.create_image(0, 0, anchor=NW, image=self.image)
-        
         return self.image1
 
     # check their are only one many people:
@@ -172,14 +178,14 @@ class MainWindow():
             
             
                 
-            if face_distances.size > 0:
+            if face_distances.size > 0: # check whether the face_distances is empty or not
                 best_match_index = np.argmin(face_distances)
 
                 if matches[best_match_index]:
                     name = names[best_match_index]
                     
             else:
-                print("faces is empty")
+                print("Faces list is epty")
             
             face_names.append(name)
         
@@ -218,6 +224,10 @@ class MainWindow():
 
                     self.message = Label(self.info_frame ,text = "Data imported successfully", fg="green", font=("Helvetica", 12))
                     self.message.pack()
+                    
+                    image_data.remove(image_data[0])
+                    self.root.destroy()
+                    main_for_entry()
                 
                 
                 
@@ -225,20 +235,22 @@ class MainWindow():
                 message = f"Hi {face_names[i-1]}, You already in the system."
                 self.message = Label(self.info_frame , text = message, fg="blue", font=("Helvetica", 12))
                 self.message.pack()
+                image_data.remove(image_data[0])
 
         elif i == 0:
             message = "No one in the frame !!!!"
             self.message = Label(self.info_frame , text = message, fg="red", font=("Helvetica", 12))
             self.message.pack()
+            image_data.remove(image_data[0])
             
         else:
             message = "More than 1 person (or no one) in frame. So, Clear noise."
             self.message = Label(self.info_frame , text = message, fg="red", font=("Helvetica", 12))
             self.message.pack()
+            image_data.remove(image_data[0])
 
 
-
-if __name__ == "__main__":
+def main_for_entry():
     total_width = 880
     total_height = 644
     total_dim = str(total_width) +"x"+ str(total_height)
@@ -255,7 +267,7 @@ if __name__ == "__main__":
         names = []
         faces = []
         times = []
-        print("reading error")
+        #print("reading error")
 
     # global img2save
     image_data = []
@@ -264,5 +276,8 @@ if __name__ == "__main__":
     root.geometry(total_dim)
     root.title("Face Attendence System")
     
-    MainWindow(root, cv2.VideoCapture(1))
+    EntryWindow(root, cv2.VideoCapture(1))
     root.mainloop()
+
+if __name__ == "__main__":
+    main_for_entry()
