@@ -16,10 +16,10 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-known_dir = "C:/Users/Goku/Documents/jupyter_data/known_image"
 
 
-class ListWindow():
+
+class delete_window():
     
     def __init__(self, root):
         self.root = root
@@ -41,7 +41,7 @@ class ListWindow():
 
         # create the tree structure to show presented data
         self.display_data_tree = ttk.Treeview(self.main_frame, yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set)
-        
+
 
 
         # configure the scrollbar which scroll listed data
@@ -69,16 +69,18 @@ class ListWindow():
         self.display_data_tree.heading("middle_name", text="Middle Name", anchor=W)
         self.display_data_tree.heading("last_name", text="Last Name", anchor=W)
         self.display_data_tree.heading("date_of_entry", text="Entry Date", anchor=W)
+        self.display_data_tree.bind('<ButtonRelease-1>', self.selectItem)
         
 
         i = 0
         for ID,name,time in zip(ids, names, times):
 
-            if i % 2 == 0:
-                self.display_data_tree.insert( parent='', index='end', iid=i, text='', values = (i+1, ID, name.split(' ')[0], name.split(' ')[1], name.split(' ')[2], str(time).split('.')[0]))
+            # if i % 2 == 0:
+            
+            self.display_data_tree.insert( parent='', index='end', iid=i, text='', values = (i+1, ID, name.split(' ')[0], name.split(' ')[1], name.split(' ')[2], str(time).split('.')[0]))
 
-            else:
-                self.display_data_tree.insert( parent='', index='end', iid=i, text='', values = (i+1, ID, name.split(' ')[0], name.split(' ')[1], name.split(' ')[2], str(time).split('.')[0]))
+            # else:
+            #     self.display_data_tree.insert( parent='', index='end', iid=i, text='', values = (i+1, ID, name.split(' ')[0], name.split(' ')[1], name.split(' ')[2], str(time).split('.')[0]))
             
 
             i += 1
@@ -88,18 +90,84 @@ class ListWindow():
         self.button_frame = Frame(self.root)
         self.button_frame.pack(side=TOP)
 
-        self.enter_button = Button(self.button_frame, text ="Delete Data", command = self.quit_all, bg="red", fg = "#ffffff" ).pack(side=RIGHT,padx=5, pady=5)
-        self.enter_button = Button(self.button_frame, text ="Register", command = self.quit_all, bg="#4293f5", fg = "#ffffff" ).pack(pady=5)
+        self.enter_button = Button(self.button_frame, text ="Delete All", command = self.delete_selected, bg="red", fg = "#ffffff" ).pack(side=RIGHT,padx=5, pady=5)
+        self.enter_button = Button(self.button_frame, text ="Delete", command = self.quit_all, bg="#700015", fg = "#ffffff" ).pack(pady=5)
         
         #END Entry section
-            
         
+    def selectItem(self,event):
+        # global del_data
+        select = self.display_data_tree.selection()
+        col = self.display_data_tree.identify_row(event.y)
+
+        if len(col) >0:
+            if len(select) >0:
+
+                self.del_data = []
+
+                for iid in select:
+
+                    self.del_data.append(self.display_data_tree.item(iid)['values'])
+
+                print(self.del_data)
+
     def quit_all(self):
         self.root.destroy()
 
+    def delete_selected(self):
+        try:
+            for del_array in self.del_data:
+                
+                new_ids = []
+                new_names = []
+                new_faces = []
+                new_times = []
+                
+                for ID, name, face, time in zip(ids, names, faces, times):  # zib both lists together
 
-def main_for_list():
+                    try:
+                        if del_array[1] != int(ID): # append all name as it is except deleted name's data
+                            new_ids.append(ID)
+                            new_names.append(name)
+                            new_faces.append(face)
+                            new_times.append(time)
 
+                        else:
+                            img_name = ID
+
+
+                    except:
+                        if del_array[1] != ID: # append all name as it is except deleted name's data
+                            new_ids.append(ID)
+                            new_names.append(name)
+                            new_faces.append(face)
+                            new_times.append(time)
+
+                        else:
+                            img_name = ID
+
+                
+                #delete old data.
+                file = open(os.path.join( known_dir, "faceData.pickle"), 'w')
+                file.close()
+            
+                #dump new data
+                with open(os.path.join( known_dir, "faceData.pickle"), 'wb') as file:
+                    pickle.dump([new_ids, new_names, new_faces, new_times], file)
+                
+                #delete .jpg file also from known_dir
+                image_name = img_name + ".jpg"
+                del_path = os.path.join(known_dir, image_name)
+                os.remove(del_path)
+
+                self.root.destroy()
+        except:
+            # if nothing is selected there.
+            pass
+
+
+def main_for_delete():
+    
     global known_dir
     global ids
     global names
@@ -109,11 +177,7 @@ def main_for_list():
     global total_height
     global image_data
 
-
-    total_width = 720
-    total_height = 320
-    total_dim = str(total_width) +"x"+ str(total_height)
-    
+    known_dir = "C:/Users/Goku/Documents/jupyter_data/known_image"
 
     #load face data from pickle
     try:
@@ -125,8 +189,11 @@ def main_for_list():
         names = []
         faces = []
         times = []
-        print("reading error")
-    
+
+    total_width = 720
+    total_height = 320
+    total_dim = str(total_width) +"x"+ str(total_height)
+
     # global img2save
     image_data = []
 
@@ -135,11 +202,11 @@ def main_for_list():
     root.title("Face Attendence System")
     root.iconbitmap(known_dir+'/logo-icon.ico')
 
-    ListWindow(root)
+    delete_window(root)
     root.mainloop()
 
 
 if __name__ == "__main__":
 
-    main_for_list()
+    main_for_delete()
     

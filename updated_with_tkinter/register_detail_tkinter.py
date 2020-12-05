@@ -194,48 +194,48 @@ class EntryWindow():
             i += 1
 
         if i == 1:
-            if face_names[i-1] == "Not recognize":
-                # print("vayo hai")
+            # if face_names[i-1] == "Not recognize":
+            #     # print("vayo hai")
                 
-                full_name = Fname + ' ' + Mname + ' ' + Lname
-                
-                if ID in ids:
-                    message = f"You enter duplicate ID, {ID} is already in the system."
-                    self.message = Label(self.info_frame , text = message, fg="red", font=("Helvetica", 12))
-                    self.message.pack()
-                    
-                else:
-                    ids.append(ID)
-                    names.append(full_name)
-                    faces.append(face_encodings[i-1])
-                    times.append(entry_date)
-
-                    #save jpg image to file folder
-                    imgName = ID + ".jpg"
-                    cv2.imwrite( os.path.join(known_dir, imgName), image_data[0])
-
-                    #delete old data.
-                    file = open(os.path.join( known_dir, "faceData.pickle"), 'w')
-                    file.close()
-
-                    #dump new data
-                    with open(os.path.join( known_dir, "faceData.pickle"), 'wb') as file:
-                        pickle.dump([ids, names, faces, times], file)
-
-                    self.message = Label(self.info_frame ,text = "Data imported successfully", fg="green", font=("Helvetica", 12))
-                    self.message.pack()
-                    
-                    image_data.remove(image_data[0])
-                    self.root.destroy()
-                    main_for_entry()
-                
-                
+            full_name = Fname + ' ' + Mname + ' ' + Lname
+            
+            if ID in ids:
+                message = f"You enter duplicate ID, {ID} is already in the system."
+                self.message = Label(self.info_frame , text = message, fg="red", font=("Helvetica", 12))
+                self.message.pack()
                 
             else:
-                message = f"Hi {face_names[i-1]}, You already in the system."
-                self.message = Label(self.info_frame , text = message, fg="blue", font=("Helvetica", 12))
+                ids.append(ID)
+                names.append(full_name)
+                faces.append(face_encodings[i-1])
+                times.append(entry_date)
+
+                #save jpg image to file folder
+                imgName = ID + ".jpg"
+                cv2.imwrite( os.path.join(known_dir, imgName), image_data[0])
+
+                #delete old data.
+                file = open(os.path.join( known_dir, "faceData.pickle"), 'w')
+                file.close()
+
+                #dump new data
+                with open(os.path.join( known_dir, "faceData.pickle"), 'wb') as file:
+                    pickle.dump([ids, names, faces, times], file)
+
+                self.message = Label(self.info_frame ,text = "Data imported successfully", fg="green", font=("Helvetica", 12))
                 self.message.pack()
+                
                 image_data.remove(image_data[0])
+                self.root.destroy()
+                # main_for_entry()
+                
+                
+                
+            # else:
+            #     message = f"Hi {face_names[i-1]}, You already in the system."
+            #     self.message = Label(self.info_frame , text = message, fg="blue", font=("Helvetica", 12))
+            #     self.message.pack()
+            #     image_data.remove(image_data[0])
 
         elif i == 0:
             message = "No one in the frame !!!!"
@@ -251,6 +251,18 @@ class EntryWindow():
 
 
 def main_for_entry():
+    
+    global known_dir
+    global ids
+    global names
+    global faces
+    global times
+    global total_width
+    global total_height
+    global image_data
+    global image_width
+    global image_height
+
     total_width = 880
     total_height = 644
     total_dim = str(total_width) +"x"+ str(total_height)
@@ -267,17 +279,19 @@ def main_for_entry():
         names = []
         faces = []
         times = []
-        #print("reading error")
-
+        print("reading error")
+    
     # global img2save
     image_data = []
-    
+
     root = Tk()
     root.geometry(total_dim)
     root.title("Face Attendence System")
+    root.iconbitmap(known_dir+'/logo-icon.ico')
     
     EntryWindow(root, cv2.VideoCapture(1))
     root.mainloop()
 
 if __name__ == "__main__":
+        
     main_for_entry()
