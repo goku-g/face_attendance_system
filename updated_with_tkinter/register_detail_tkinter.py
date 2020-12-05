@@ -214,10 +214,13 @@ class EntryWindow():
                 imgName = ID + ".jpg"
                 cv2.imwrite( os.path.join(known_dir, imgName), image_data[0])
 
-                #delete old data.
-                file = open(os.path.join( known_dir, "faceData.pickle"), 'w')
-                file.close()
-
+                try:
+	                #delete old data.
+	                file = open(os.path.join( known_dir, "faceData.pickle"), 'w')
+	                file.close()
+	            except:
+	            	pass
+	            
                 #dump new data
                 with open(os.path.join( known_dir, "faceData.pickle"), 'wb') as file:
                     pickle.dump([ids, names, faces, times], file)
