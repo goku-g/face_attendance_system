@@ -218,8 +218,8 @@ class EntryWindow():
 	                #delete old data.
 	                file = open(os.path.join( known_dir, "faceData.pickle"), 'w')
 	                file.close()
-	            except:
-	            	pass
+                except:
+                	pass
 	            
                 #dump new data
                 with open(os.path.join( known_dir, "faceData.pickle"), 'wb') as file:
